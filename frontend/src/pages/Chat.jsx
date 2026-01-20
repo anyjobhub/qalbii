@@ -128,6 +128,57 @@ export default function Chat() {
         };
     }, [socket, selectedChat]);
 
+    // Socket listeners for online/offline status
+    useEffect(() => {
+        if (!socket) return;
+
+        const handleUserOnline = ({ userId }) => {
+            console.log('👤 User came online:', userId);
+            // Update in allUsers
+            setAllUsers((prev) =>
+                prev.map((user) =>
+                    user._id === userId ? { ...user, isOnline: true } : user
+                )
+            );
+            // Update in chats
+            setChats((prev) =>
+                prev.map((chat) => ({
+                    ...chat,
+                    participants: chat.participants.map((p) =>
+                        p._id === userId ? { ...p, isOnline: true } : p
+                    ),
+                }))
+            );
+        };
+
+        const handleUserOffline = ({ userId, lastSeen }) => {
+            console.log('👤 User went offline:', userId, lastSeen);
+            // Update in allUsers
+            setAllUsers((prev) =>
+                prev.map((user) =>
+                    user._id === userId ? { ...user, isOnline: false, lastSeen } : user
+                )
+            );
+            // Update in chats
+            setChats((prev) =>
+                prev.map((chat) => ({
+                    ...chat,
+                    participants: chat.participants.map((p) =>
+                        p._id === userId ? { ...p, isOnline: false, lastSeen } : p
+                    ),
+                }))
+            );
+        };
+
+        socket.on('user:online', handleUserOnline);
+        socket.on('user:offline', handleUserOffline);
+
+        return () => {
+            socket.off('user:online', handleUserOnline);
+            socket.off('user:offline', handleUserOffline);
+        };
+    }, [socket]);
+
     const handleSendMessage = ({ content, media }) => {
         if (!socket || !selectedChat) return;
 
@@ -166,9 +217,15 @@ export default function Chat() {
 
         try {
             await api.delete(`/chat/${selectedChat._id}`);
-            setChats((prev) => prev.filter((chat) => chat._id !== selectedChat._id));
-            setSelectedChat(null);
+
+            // Clear messages first
             setMessages([]);
+
+            // Remove chat from list
+            setChats((prev) => prev.filter((chat) => chat._id !== selectedChat._id));
+
+            // Deselect chat
+            setSelectedChat(null);
         } catch (error) {
             console.error('Failed to delete chat:', error);
         }

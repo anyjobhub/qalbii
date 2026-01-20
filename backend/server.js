@@ -39,6 +39,7 @@ const io = new Server(httpServer, {
 connectDB();
 
 // Middleware
+app.set('trust proxy', 1); // Trust first proxy (Render)
 app.use(helmet());
 app.use(morgan('dev'));
 app.use(cors({

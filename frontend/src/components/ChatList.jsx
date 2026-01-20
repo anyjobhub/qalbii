@@ -148,13 +148,22 @@ export default function ChatList({ chats, allUsers = [], selectedChat, onSelectC
                                             <h3 className="font-semibold text-gray-900 truncate">
                                                 {otherUser.fullName}
                                             </h3>
-                                            {chat.lastMessage && (
-                                                <span className="text-xs text-gray-500">
-                                                    {formatDistanceToNow(new Date(chat.lastMessage.createdAt), {
-                                                        addSuffix: false,
-                                                    })}
-                                                </span>
-                                            )}
+                                            <div className="flex flex-col items-end">
+                                                {chat.lastMessage && (
+                                                    <span className="text-xs text-gray-500">
+                                                        {formatDistanceToNow(new Date(chat.lastMessage.createdAt), {
+                                                            addSuffix: false,
+                                                        })}
+                                                    </span>
+                                                )}
+                                                {!otherUser.isOnline && otherUser.lastSeen && (
+                                                    <span className="text-xs text-gray-400">
+                                                        {formatDistanceToNow(new Date(otherUser.lastSeen), {
+                                                            addSuffix: true,
+                                                        })}
+                                                    </span>
+                                                )}
+                                            </div>
                                         </div>
                                         <div className="flex items-center justify-between">
                                             <p className="text-sm text-gray-600 truncate">
