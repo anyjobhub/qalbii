@@ -165,7 +165,6 @@ router.get('/all', protect, async (req, res) => {
     try {
         const users = await User.find({
             _id: { $ne: req.user._id },
-            emailVerified: true,
         })
             .select('username fullName profilePicture isOnline lastSeen')
             .limit(100)

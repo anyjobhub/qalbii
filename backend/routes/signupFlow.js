@@ -36,20 +36,48 @@ router.post(
             const otpCode = Math.floor(100000 + Math.random() * 900000).toString();
 
             // Delete any existing OTP for this email
-            await SignupOTP.deleteMany({ email });
+            try {
+                await SignupOTP.deleteMany({ email });
+            } catch (deleteError) {
+                console.error('❌ Error deleting old OTPs:', deleteError);
+                // Continue anyway, not critical
+            }
 
             // Save OTP
-            await SignupOTP.create({
-                email,
-                otp: otpCode,
-            });
+            try {
+                await SignupOTP.create({
+                    email,
+                    otp: otpCode,
+                });
+                console.log('✅ OTP created for:', email);
+            } catch (createError) {
+                console.error('❌ Error creating OTP:', createError);
+                return res.status(500).json({
+                    message: 'Failed to generate OTP. Please try again.'
+                });
+            }
 
             // Send OTP via email
-            const emailResult = await sendOTPEmail(email, otpCode, 'User');
+            try {
+                console.log('📧 Attempting to send email to:', email);
+                const emailResult = await sendOTPEmail(email, otpCode, 'User');
 
-            if (!emailResult.success) {
+                if (!emailResult || !emailResult.success) {
+                    console.error('❌ Email send failed:', emailResult?.error || 'Unknown error');
+                    // Delete OTP since email failed
+                    await SignupOTP.deleteMany({ email });
+                    return res.status(500).json({
+                        message: 'Failed to send OTP email. Please check your email address or try again later.'
+                    });
+                }
+
+                console.log('✅ OTP email sent successfully to:', email);
+            } catch (emailError) {
+                console.error('❌ Email service error:', emailError.message || emailError);
+                // Delete OTP since email failed
+                await SignupOTP.deleteMany({ email });
                 return res.status(500).json({
-                    message: 'Failed to send OTP email. Please try again.'
+                    message: 'Email service temporarily unavailable. Please try again later.'
                 });
             }
 
@@ -58,7 +86,7 @@ router.post(
                 email,
             });
         } catch (error) {
-            console.error('Send signup OTP error:', error);
+            console.error('❌ Send signup OTP error:', error);
             res.status(500).json({ message: 'Server error. Please try again.' });
         }
     }
