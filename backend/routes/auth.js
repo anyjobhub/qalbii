@@ -179,35 +179,55 @@ router.post(
             const user = await User.findOne(query);
 
             if (!user) {
-                return res.status(404).json({ message: 'User not found' });
+                return res.status(404).json({ message: 'No account found with this information' });
             }
 
             // Generate 6-digit OTP
             const otpCode = Math.floor(100000 + Math.random() * 900000).toString();
 
-            // Delete any existing OTP for this identifier
-            await OTP.deleteMany({ identifier: identifier.toLowerCase() });
+            // Save OTP with error handling
+            try {
+                // Delete any existing OTP for this identifier
+                await OTP.deleteMany({ identifier: identifier.toLowerCase() });
 
-            // Save OTP
-            await OTP.create({
-                identifier: identifier.toLowerCase(),
-                otp: otpCode,
-            });
-
-            // Send OTP via email
-            const emailResult = await sendOTPEmail(user.email, otpCode, user.username);
-
-            if (!emailResult.success) {
-                return res.status(500).json({ message: 'Failed to send OTP email' });
+                // Create new OTP
+                await OTP.create({
+                    identifier: identifier.toLowerCase(),
+                    otp: otpCode,
+                });
+            } catch (dbError) {
+                console.error('❌ OTP DB Error:', dbError);
+                return res.status(500).json({
+                    message: 'Failed to generate OTP. Please try again.'
+                });
             }
 
-            res.json({
-                message: 'OTP sent to your email',
-                identifier: identifier.toLowerCase(),
-            });
+            // Send OTP via email with comprehensive error handling
+            try {
+                const emailResult = await sendOTPEmail(user.email, otpCode, user.username);
+
+                if (!emailResult.success) {
+                    console.error('❌ Email send failed:', emailResult.error);
+                    return res.status(500).json({
+                        message: 'Failed to send OTP email. Please check your email configuration.'
+                    });
+                }
+
+                res.json({
+                    message: 'OTP sent to your email',
+                    identifier: identifier.toLowerCase(),
+                });
+            } catch (emailError) {
+                console.error('❌ Email service error:', emailError.message || emailError);
+                return res.status(500).json({
+                    message: 'Email service temporarily unavailable. Please try again later.'
+                });
+            }
         } catch (error) {
-            console.error('Forgot password error:', error);
-            res.status(500).json({ message: 'Server error during password reset' });
+            console.error('❌ Forgot password error:', error);
+            res.status(500).json({
+                message: 'Server error during password reset. Please try again.'
+            });
         }
     }
 );

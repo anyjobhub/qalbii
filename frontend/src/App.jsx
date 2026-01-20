@@ -2,7 +2,7 @@ import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
 import { AuthProvider, useAuth } from './context/AuthContext';
 import { SocketProvider } from './context/SocketContext';
 import Home from './pages/Home';
-import Signup from './pages/Signup';
+import SignupMultiStep from './pages/SignupMultiStep';
 import Login from './pages/Login';
 import ForgotPassword from './pages/ForgotPassword';
 import Chat from './pages/Chat';
@@ -64,7 +64,7 @@ function App() {
               path="/signup"
               element={
                 <PublicRoute>
-                  <Signup />
+                  <SignupMultiStep />
                 </PublicRoute>
               }
             />

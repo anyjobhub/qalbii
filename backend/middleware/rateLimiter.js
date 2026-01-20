@@ -35,3 +35,12 @@ export const otpLimiter = rateLimit({
     standardHeaders: true,
     legacyHeaders: false,
 });
+
+// Rate limiter for signup OTP
+export const signupOTPLimiter = rateLimit({
+    windowMs: 15 * 60 * 1000, // 15 minutes
+    max: 3, // 3 requests per 15 minutes per email
+    message: 'Too many OTP requests for this email, please try again later.',
+    standardHeaders: true,
+    legacyHeaders: false,
+});

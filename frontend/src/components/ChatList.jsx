@@ -2,9 +2,10 @@ import { formatDistanceToNow } from 'date-fns';
 import { useState } from 'react';
 import { FiSearch, FiX } from 'react-icons/fi';
 
-export default function ChatList({ chats, selectedChat, onSelectChat, currentUser }) {
+export default function ChatList({ chats, allUsers = [], selectedChat, onSelectChat, onStartNewChat, currentUser }) {
     const [searchQuery, setSearchQuery] = useState('');
 
+    // Filter existing chats
     const filteredChats = chats.filter((chat) => {
         const otherUser = chat.participants.find((p) => p._id !== currentUser.id);
         return (
@@ -12,6 +13,22 @@ export default function ChatList({ chats, selectedChat, onSelectChat, currentUse
             otherUser.fullName.toLowerCase().includes(searchQuery.toLowerCase())
         );
     });
+
+    // Filter all users (exclude current user  and users already in chats)
+    const chatUserIds = chats.flatMap(chat =>
+        chat.participants.map(p => p._id)
+    );
+
+    const filteredUsers = searchQuery.trim()
+        ? allUsers.filter((user) => {
+            const isInChats = chatUserIds.includes(user._id);
+            const matchesSearch =
+                user.username.toLowerCase().includes(searchQuery.toLowerCase()) ||
+                user.fullName.toLowerCase().includes(searchQuery.toLowerCase());
+
+            return !isInChats && matchesSearch;
+        })
+        : [];
 
     return (
         <div className="h-full flex flex-col bg-white border-r">
@@ -39,9 +56,56 @@ export default function ChatList({ chats, selectedChat, onSelectChat, currentUse
 
             {/* Chat List */}
             <div className="flex-1 overflow-y-auto">
-                {filteredChats.length === 0 ? (
+                {/* Show discovered users if searching */}
+                {searchQuery.trim() && filteredUsers.length > 0 && (
+                    <div className="border-b-2 border-primary-200">
+                        <div className="px-4 py-2 bg-primary-50 text-primary-800 text-sm font-semibold">
+                            Discover Users
+                        </div>
+                        {filteredUsers.map((user) => (
+                            <div
+                                key={user._id}
+                                onClick={() => {
+                                    onStartNewChat(user._id);
+                                    setSearchQuery('');
+                                }}
+                                className="p-4 border-b cursor-pointer hover:bg-blue-50 transition-colors"
+                            >
+                                <div className="flex items-center gap-3">
+                                    <div className="relative">
+                                        <div className="w-12 h-12 rounded-full bg-gradient-to-br from-blue-500 to-purple-500 flex items-center justify-center text-white font-bold">
+                                            {user.profilePicture ? (
+                                                <img
+                                                    src={user.profilePicture}
+                                                    alt={user.fullName}
+                                                    className="w-full h-full rounded-full object-cover"
+                                                />
+                                            ) : (
+                                                user.fullName?.charAt(0).toUpperCase()
+                                            )}
+                                        </div>
+                                        {user.isOnline && (
+                                            <div className="absolute bottom-0 right-0 w-3 h-3 bg-green-500 rounded-full border-2 border-white" />
+                                        )}
+                                    </div>
+                                    <div className="flex-1">
+                                        <h3 className="font-semibold text-gray-900">{user.fullName}</h3>
+                                        <p className="text-sm text-gray-500">@{user.username}</p>
+                                    </div>
+                                    <span className="text-xs text-blue-600 font-semibold">+ New Chat</span>
+                                </div>
+                            </div>
+                        ))}
+                    </div>
+                )}
+
+                {/* Existing Chats */}
+                {filteredChats.length === 0 && filteredUsers.length === 0 ? (
                     <div className="p-8 text-center text-gray-500">
-                        <p>No chats found</p>
+                        <p>{searchQuery ? 'No users or chats found' : 'No chats yet'}</p>
+                        {!searchQuery && (
+                            <p className="text-sm mt-2">Search for users to start chatting</p>
+                        )}
                     </div>
                 ) : (
                     filteredChats.map((chat) => {

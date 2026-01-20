@@ -44,6 +44,10 @@ const userSchema = new mongoose.Schema(
             minlength: [8, 'Password must be at least 8 characters'],
             select: false, // Don't return password by default
         },
+        emailVerified: {
+            type: Boolean,
+            default: false,
+        },
         profilePicture: {
             type: String,
             default: '',

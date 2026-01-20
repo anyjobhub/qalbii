@@ -12,24 +12,30 @@ export default function Chat() {
     const { socket, connected } = useSocket();
 
     const [chats, setChats] = useState([]);
+    const [allUsers, setAllUsers] = useState([]);
     const [selectedChat, setSelectedChat] = useState(null);
     const [messages, setMessages] = useState([]);
     const [loading, setLoading] = useState(true);
 
-    // Fetch chats
+    // Fetch chats and all users
     useEffect(() => {
-        const fetchChats = async () => {
+        const fetchData = async () => {
             try {
-                const response = await api.get('/chat');
-                setChats(response.data.chats);
+                // Fetch chats
+                const chatsResponse = await api.get('/chat');
+                setChats(chatsResponse.data.chats);
+
+                // Fetch all users for discovery
+                const usersResponse = await api.get('/user/all');
+                setAllUsers(usersResponse.data.users);
             } catch (error) {
-                console.error('Failed to fetch chats:', error);
+                console.error('Failed to fetch data:', error);
             } finally {
                 setLoading(false);
             }
         };
 
-        fetchChats();
+        fetchData();
     }, []);
 
     // Fetch messages when chat is selected
@@ -168,6 +174,24 @@ export default function Chat() {
         }
     };
 
+    // Handle creating new chat with user
+    const handleStartNewChat = async (userId) => {
+        try {
+            const response = await api.post('/chat', { participantId: userId });
+            const newChat = response.data.chat;
+
+            // Check if chat already exists in list
+            const existingChat = chats.find(c => c._id === newChat._id);
+            if (!existingChat) {
+                setChats((prev) => [newChat, ...prev]);
+            }
+
+            setSelectedChat(newChat);
+        } catch (error) {
+            console.error('Failed to create chat:', error);
+        }
+    };
+
     return (
         <div className="h-screen flex flex-col">
             <Navbar />
@@ -177,8 +201,10 @@ export default function Chat() {
                 <div className="w-full md:w-96 flex-shrink-0">
                     <ChatList
                         chats={chats}
+                        allUsers={allUsers}
                         selectedChat={selectedChat}
                         onSelectChat={setSelectedChat}
+                        onStartNewChat={handleStartNewChat}
                         currentUser={user}
                     />
                 </div>

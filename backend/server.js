@@ -7,6 +7,7 @@ import helmet from 'helmet';
 import morgan from 'morgan';
 import connectDB from './config/db.js';
 import authRoutes from './routes/auth.js';
+import signupFlowRoutes from './routes/signupFlow.js';
 import userRoutes from './routes/user.js';
 import chatRoutes from './routes/chat.js';
 import messageRoutes from './routes/message.js';
@@ -20,13 +21,18 @@ dotenv.config();
 const app = express();
 const httpServer = createServer(app);
 
-// Initialize Socket.IO
+// Initialize Socket.IO with stability improvements
 const io = new Server(httpServer, {
     cors: {
         origin: process.env.FRONTEND_URL || 'http://localhost:5173',
         methods: ['GET', 'POST', 'PUT', 'DELETE'],
         credentials: true,
+        allowedHeaders: ['Authorization'],
     },
+    pingTimeout: 60000, // 60 seconds
+    pingInterval: 25000, // 25 seconds
+    transports: ['websocket', 'polling'],
+    allowEIO3: true,
 });
 
 // Connect to MongoDB
@@ -52,6 +58,7 @@ app.get('/', (req, res) => {
 });
 
 app.use('/api/auth', authRoutes);
+app.use('/api/auth', signupFlowRoutes); // Multi-step signup routes
 app.use('/api/user', userRoutes);
 app.use('/api/chat', chatRoutes);
 app.use('/api/message', messageRoutes);

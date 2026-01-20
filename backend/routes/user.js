@@ -158,4 +158,24 @@ router.get('/search', protect, async (req, res) => {
     }
 });
 
+// @route   GET /api/user/all
+// @desc    Get all users for discovery (excluding current user)
+// @access  Private
+router.get('/all', protect, async (req, res) => {
+    try {
+        const users = await User.find({
+            _id: { $ne: req.user._id },
+            emailVerified: true,
+        })
+            .select('username fullName profilePicture isOnline lastSeen')
+            .limit(100)
+            .sort({ fullName: 1 });
+
+        res.json({ users });
+    } catch (error) {
+        console.error('Get all users error:', error);
+        res.status(500).json({ message: 'Server error' });
+    }
+});
+
 export default router;

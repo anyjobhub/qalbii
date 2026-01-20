@@ -1,48 +1,62 @@
 # Qalbi - Deployment URLs
 
-## Production URLs
+## ✅ Production URLs (LIVE)
 
 ### Frontend (Netlify)
-https://qalbi-chat.netlify.app
+**https://qalbi-chat.netlify.app**
 
 ### Backend (Render)  
-https://qalbi-backend.onrender.com
+**https://qalbi-backend.onrender.com**
 
 ### API Endpoint
-https://qalbi-backend.onrender.com/api
+**https://qalbi-backend.onrender.com/api**
 
 ---
 
-## Quick Deploy Commands
+## 🎉 Deployment Status
 
-### Push to GitHub
+- ✅ Backend: **DEPLOYED** and running
+- ✅ Frontend: **DEPLOYED** and accessible
+- ✅ Database: MongoDB Atlas connected
+- ✅ Realtime: Socket.IO enabled
+- ✅ Media: Cloudinary configured
+- ✅ Emails: Brevo integrated
+
+---
+
+## Quick Test
+
+Visit: **https://qalbi-chat.netlify.app**
+
+1. Click "Get Started" → Should see signup page
+2. Create an account → Should redirect to chat
+3. Test realtime messaging!
+
+---
+
+## Continuous Deployment
+
+Both services auto-deploy when you push to `main` branch:
+
 ```bash
 git add .
-git commit -m "Deploy to production"
+git commit -m "Your changes"
 git push
 ```
 
-Both Render and Netlify will auto-deploy from the `main` branch.
+- **Netlify**: Rebuilds frontend (3-5 min)
+- **Render**: Rebuilds backend (5-10 min)
 
 ---
 
 ## Environment Variables
 
-### Backend (Set in Render Dashboard)
-- NODE_ENV
-- PORT
-- MONGODB_URI
-- JWT_SECRET
-- JWT_REFRESH_SECRET
-- CLOUDINARY_CLOUD_NAME
-- CLOUDINARY_API_KEY
-- CLOUDINARY_API_SECRET
-- BREVO_API_KEY
-- BREVO_SENDER_EMAIL
-- FRONTEND_URL
+All environment variables are configured in:
+- **Render Dashboard**: Backend settings
+- **Netlify Dashboard**: Frontend settings
 
-### Frontend (Set in Netlify Dashboard)
-- VITE_API_URL
-- VITE_SOCKET_URL
+See `deployment_guide.md` for complete variable list.
 
-See `deployment_guide.md` for complete setup instructions.
+---
+
+## 🎊 Your app is LIVE and ready to use!
