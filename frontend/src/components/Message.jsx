@@ -1,0 +1,121 @@
+import { formatDistanceToNow } from 'date-fns';
+import { FiCheck, FiCheckCircle } from 'react-icons/fi';
+import { MdDelete } from 'react-icons/md';
+import { useState } from 'react';
+
+export default function Message({ message, currentUserId, onDelete }) {
+    const [showMenu, setShowMenu] = useState(false);
+    const isSender = message.sender._id === currentUserId;
+
+    const handleDelete = (deleteFor) => {
+        onDelete(message._id, deleteFor);
+        setShowMenu(false);
+    };
+
+    if (message.deletedForEveryone) {
+        return (
+            <div className="flex justify-center my-2">
+                <span className="text-sm text-gray-400 italic">This message was deleted</span>
+            </div>
+        );
+    }
+
+    return (
+        <div className={`flex ${isSender ? 'justify-end' : 'justify-start'} mb-4 group`}>
+            <div className={`max-w-[70%] ${isSender ? 'order-2' : 'order-1'}`}>
+                {!isSender && (
+                    <p className="text-xs text-gray-500 mb-1 ml-2">{message.sender.fullName}</p>
+                )}
+
+                <div className="relative">
+                    <div
+                        className={`rounded-2xl px-4 py-2 ${isSender
+                                ? 'bg-gradient-to-r from-primary-600 to-secondary-600 text-white'
+                                : 'bg-gray-100 text-gray-900'
+                            }`}
+                    >
+                        {/* Media */}
+                        {message.media?.url && (
+                            <div className="mb-2">
+                                {message.media.type === 'image' && (
+                                    <img
+                                        src={message.media.url}
+                                        alt="Shared"
+                                        className="rounded-lg max-w-full h-auto"
+                                    />
+                                )}
+                                {message.media.type === 'video' && (
+                                    <video
+                                        src={message.media.url}
+                                        controls
+                                        className="rounded-lg max-w-full h-auto"
+                                    />
+                                )}
+                                {message.media.type === 'audio' && (
+                                    <audio src={message.media.url} controls className="w-full" />
+                                )}
+                            </div>
+                        )}
+
+                        {/* Content */}
+                        {message.content && <p className="break-words">{message.content}</p>}
+
+                        {/* Timestamp and Status */}
+                        <div className="flex items-center justify-end gap-2 mt-1">
+                            <span
+                                className={`text-xs ${isSender ? 'text-white/80' : 'text-gray-500'
+                                    }`}
+                            >
+                                {formatDistanceToNow(new Date(message.createdAt), { addSuffix: true })}
+                            </span>
+
+                            {isSender && (
+                                <span className="text-white/80">
+                                    {message.status === 'sent' && <FiCheck size={14} />}
+                                    {message.status === 'delivered' && (
+                                        <span className="flex">
+                                            <FiCheck size={14} className="-mr-2" />
+                                            <FiCheck size={14} />
+                                        </span>
+                                    )}
+                                    {message.status === 'read' && (
+                                        <FiCheckCircle size={14} className="text-blue-300" />
+                                    )}
+                                </span>
+                            )}
+                        </div>
+                    </div>
+
+                    {/* Delete Menu */}
+                    {isSender && (
+                        <div className="absolute -top-2 -right-2 opacity-0 group-hover:opacity-100 transition-opacity">
+                            <button
+                                onClick={() => setShowMenu(!showMenu)}
+                                className="bg-white rounded-full p-1.5 shadow-lg hover:bg-gray-100"
+                            >
+                                <MdDelete className="text-red-500" size={16} />
+                            </button>
+
+                            {showMenu && (
+                                <div className="absolute right-0 mt-2 bg-white rounded-lg shadow-xl border z-10 overflow-hidden">
+                                    <button
+                                        onClick={() => handleDelete('self')}
+                                        className="block w-full px-4 py-2 text-left text-sm hover:bg-gray-50 whitespace-nowrap"
+                                    >
+                                        Delete for me
+                                    </button>
+                                    <button
+                                        onClick={() => handleDelete('both')}
+                                        className="block w-full px-4 py-2 text-left text-sm hover:bg-gray-50 text-red-600 whitespace-nowrap"
+                                    >
+                                        Delete for everyone
+                                    </button>
+                                </div>
+                            )}
+                        </div>
+                    )}
+                </div>
+            </div>
+        </div>
+    );
+}
