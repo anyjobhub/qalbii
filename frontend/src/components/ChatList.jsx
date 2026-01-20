@@ -5,6 +5,13 @@ import { FiSearch, FiX } from 'react-icons/fi';
 export default function ChatList({ chats, allUsers = [], selectedChat, onSelectChat, onStartNewChat, currentUser }) {
     const [searchQuery, setSearchQuery] = useState('');
 
+    // Helper to check if date is valid
+    const isValidDate = (date) => {
+        if (!date) return false;
+        const d = new Date(date);
+        return d instanceof Date && !isNaN(d.getTime());
+    };
+
     // Filter existing chats
     const filteredChats = chats.filter((chat) => {
         const otherUser = chat.participants.find((p) => p._id !== currentUser.id);
@@ -149,14 +156,14 @@ export default function ChatList({ chats, allUsers = [], selectedChat, onSelectC
                                                 {otherUser.fullName}
                                             </h3>
                                             <div className="flex flex-col items-end">
-                                                {chat.lastMessage && (
+                                                {chat.lastMessage && isValidDate(chat.lastMessage.createdAt) && (
                                                     <span className="text-xs text-gray-500">
                                                         {formatDistanceToNow(new Date(chat.lastMessage.createdAt), {
                                                             addSuffix: false,
                                                         })}
                                                     </span>
                                                 )}
-                                                {!otherUser.isOnline && otherUser.lastSeen && (
+                                                {!otherUser.isOnline && isValidDate(otherUser.lastSeen) && (
                                                     <span className="text-xs text-gray-400">
                                                         {formatDistanceToNow(new Date(otherUser.lastSeen), {
                                                             addSuffix: true,
