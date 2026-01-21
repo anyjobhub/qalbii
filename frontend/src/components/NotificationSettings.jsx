@@ -12,21 +12,21 @@ export default function NotificationSettings() {
     };
 
     return (
-        <div className="bg-white rounded-lg shadow-lg p-4 w-72">
-            <h3 className="font-bold text-gray-900 mb-4 flex items-center gap-2">
+        <div className="bg-white rounded-lg shadow-lg p-3 sm:p-4 w-72 sm:w-80 max-w-[90vw]">
+            <h3 className="font-bold text-gray-900 mb-3 sm:mb-4 flex items-center gap-2 text-sm sm:text-base">
                 <FiVolume2 className="text-primary-600" />
                 Notification Settings
             </h3>
 
             {/* Sound Enable/Disable Toggle */}
-            <div className="mb-4">
+            <div className="mb-3 sm:mb-4">
                 <label className="flex items-center justify-between cursor-pointer">
-                    <span className="text-sm font-medium text-gray-700">
+                    <span className="text-xs sm:text-sm font-medium text-gray-700">
                         Sound Notifications
                     </span>
                     <button
                         onClick={preferences.toggleSound}
-                        className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors ${preferences.soundEnabled ? 'bg-primary-600' : 'bg-gray-300'
+                        className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors touch-manipulation ${preferences.soundEnabled ? 'bg-primary-600' : 'bg-gray-300'
                             }`}
                     >
                         <span
@@ -38,8 +38,8 @@ export default function NotificationSettings() {
             </div>
 
             {/* Volume Control */}
-            <div className={`mb-4 ${!preferences.soundEnabled ? 'opacity-50' : ''}`}>
-                <label className="block text-sm font-medium text-gray-700 mb-2">
+            <div className={`mb-3 sm:mb-4 ${!preferences.soundEnabled ? 'opacity-50' : ''}`}>
+                <label className="block text-xs sm:text-sm font-medium text-gray-700 mb-2">
                     Volume: {Math.round(preferences.volume * 100)}%
                 </label>
                 <input
@@ -49,7 +49,8 @@ export default function NotificationSettings() {
                     value={Math.round(preferences.volume * 100)}
                     onChange={handleVolumeChange}
                     disabled={!preferences.soundEnabled}
-                    className="w-full h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer accent-primary-600"
+                    className="w-full h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer accent-primary-600 touch-manipulation"
+                    style={{ minHeight: '44px' }}
                 />
             </div>
 
@@ -57,7 +58,7 @@ export default function NotificationSettings() {
             <button
                 onClick={testNotificationSound}
                 disabled={!preferences.soundEnabled}
-                className="w-full py-2 px-4 bg-gradient-to-r from-primary-600 to-secondary-600 text-white rounded-lg hover:shadow-lg transition-all disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
+                className="w-full py-3 px-4 text-sm sm:text-base bg-gradient-to-r from-primary-600 to-secondary-600 text-white rounded-lg hover:shadow-lg transition-all disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2 touch-manipulation min-h-[44px]"
             >
                 <FiBell size={16} />
                 Test Sound

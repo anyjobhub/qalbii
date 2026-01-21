@@ -1,5 +1,5 @@
 import { useState, useEffect, useRef } from 'react';
-import { FiSend, FiImage, FiTrash2, FiBell } from 'react-icons/fi';
+import { FiSend, FiImage, FiTrash2, FiBell, FiArrowLeft } from 'react-icons/fi';
 import Message from './Message';
 import TypingIndicator from './TypingIndicator';
 import NotificationSettings from './NotificationSettings';
@@ -15,6 +15,7 @@ export default function ChatWindow({
     onSendMessage,
     onDeleteMessage,
     onDeleteChat,
+    onBack,
 }) {
     const [newMessage, setNewMessage] = useState('');
     const [isTyping, setIsTyping] = useState(false);
@@ -178,10 +179,22 @@ export default function ChatWindow({
     return (
         <div className="h-full flex flex-col bg-white">
             {/* Header */}
-            <div className="p-4 border-b flex items-center justify-between bg-gradient-to-r from-primary-50 to-secondary-50">
-                <div className="flex items-center gap-3">
-                    <div className="relative">
-                        <div className="w-10 h-10 rounded-full bg-gradient-to-br from-primary-500 to-secondary-500 flex items-center justify-center text-white font-bold">
+            <div className="p-3 sm:p-4 border-b flex items-center justify-between bg-gradient-to-r from-primary-50 to-secondary-50">
+                <div className="flex items-center gap-2 sm:gap-3 flex-1 min-w-0">
+                    {/* Back Button - Mobile Only */}
+                    {onBack && (
+                        <button
+                            onClick={onBack}
+                            className="md:hidden p-2 -ml-2 hover:bg-gray-100 rounded-lg touch-manipulation flex-shrink-0"
+                            aria-label="Back to chats"
+                        >
+                            <FiArrowLeft size={20} className="text-gray-700" />
+                        </button>
+                    )}
+
+                    {/* Avatar */}
+                    <div className="relative flex-shrink-0">
+                        <div className="w-8 h-8 sm:w-10 sm:h-10 rounded-full bg-gradient-to-br from-primary-500 to-secondary-500 flex items-center justify-center text-white font-bold text-sm sm:text-base">
                             {otherUser.profilePicture ? (
                                 <img
                                     src={otherUser.profilePicture}
@@ -193,30 +206,32 @@ export default function ChatWindow({
                             )}
                         </div>
                         {otherUser.isOnline && (
-                            <div className="absolute bottom-0 right-0 w-3 h-3 bg-green-500 rounded-full border-2 border-white" />
+                            <div className="absolute bottom-0 right-0 w-2.5 h-2.5 sm:w-3 sm:h-3 bg-green-500 rounded-full border-2 border-white" />
                         )}
                     </div>
-                    <div>
-                        <h2 className="font-bold text-gray-900">{otherUser.fullName}</h2>
-                        <p className={`text-sm ${otherUser.isOnline ? 'text-green-600 font-medium' : 'text-gray-500'}`}>
+
+                    {/* Name and Status */}
+                    <div className="flex-1 min-w-0">
+                        <h2 className="font-bold text-gray-900 text-sm sm:text-base truncate">{otherUser.fullName}</h2>
+                        <p className={`text-xs sm:text-sm truncate ${otherUser.isOnline ? 'text-green-600 font-medium' : 'text-gray-500'}`}>
                             {formatLastSeen(otherUser.isOnline, otherUser.lastSeen)}
                         </p>
                     </div>
                 </div>
 
-                <div className="flex items-center gap-2">
+                <div className="flex items-center gap-1 sm:gap-2 flex-shrink-0">
                     {/* Notification Settings */}
                     <div className="relative" ref={notificationSettingsRef}>
                         <button
                             onClick={() => setShowNotificationSettings(!showNotificationSettings)}
-                            className="text-primary-600 hover:text-primary-700 p-2 rounded-lg hover:bg-primary-50"
+                            className="text-primary-600 hover:text-primary-700 p-2 rounded-lg hover:bg-primary-50 touch-manipulation"
                             title="Notification Settings"
                         >
-                            <FiBell size={20} />
+                            <FiBell size={18} className="sm:w-5 sm:h-5" />
                         </button>
 
                         {showNotificationSettings && (
-                            <div className="absolute right-0 top-12 z-50">
+                            <div className="absolute right-0 top-12 z-50 max-w-[90vw] sm:max-w-none">
                                 <NotificationSettings />
                             </div>
                         )}
@@ -225,10 +240,10 @@ export default function ChatWindow({
                     {/* Delete Chat */}
                     <button
                         onClick={onDeleteChat}
-                        className="text-red-500 hover:text-red-700 p-2 rounded-lg hover:bg-red-50"
+                        className="text-red-500 hover:text-red-700 p-2 rounded-lg hover:bg-red-50 touch-manipulation"
                         title="Delete Chat"
                     >
-                        <FiTrash2 size={20} />
+                        <FiTrash2 size={18} className="sm:w-5 sm:h-5" />
                     </button>
                 </div>
             </div>
@@ -267,8 +282,8 @@ export default function ChatWindow({
             )}
 
             {/* Input Area */}
-            <div className="p-4 border-t bg-white">
-                <div className="flex items-end gap-2">
+            <div className="p-2 sm:p-4 border-t bg-white">
+                <div className="flex items-end gap-1 sm:gap-2">
                     <input
                         type="file"
                         ref={fileInputRef}
@@ -280,10 +295,10 @@ export default function ChatWindow({
                     <button
                         onClick={() => fileInputRef.current?.click()}
                         disabled={uploadingMedia}
-                        className="p-3 rounded-lg bg-gray-100 hover:bg-gray-200 text-gray-700 transition-colors disabled:opacity-50"
+                        className="p-2 sm:p-3 rounded-lg bg-gray-100 hover:bg-gray-200 text-gray-700 transition-colors disabled:opacity-50 touch-manipulation flex-shrink-0"
                         title="Attach Media"
                     >
-                        <FiImage size={20} />
+                        <FiImage size={18} className="sm:w-5 sm:h-5" />
                     </button>
 
                     <textarea
@@ -293,19 +308,19 @@ export default function ChatWindow({
                             handleTyping();
                         }}
                         onKeyPress={handleKeyPress}
-                        className="flex-1 px-4 py-3 rounded-lg border-2 border-gray-200 focus:border-primary-500 outline-none resize-none"
+                        className="flex-1 px-3 py-2 sm:px-4 sm:py-3 text-sm sm:text-base rounded-lg border-2 border-gray-200 focus:border-primary-500 outline-none resize-none"
                         placeholder="Type a message..."
                         rows="1"
-                        style={{ maxHeight: '120px' }}
+                        style={{ maxHeight: '100px' }}
                     />
 
                     <button
                         onClick={handleSendMessage}
                         disabled={!newMessage.trim() || uploadingMedia}
-                        className="p-3 rounded-lg bg-gradient-to-r from-primary-600 to-secondary-600 text-white hover:shadow-lg transition-all disabled:opacity-50 disabled:cursor-not-allowed"
+                        className="p-2 sm:p-3 rounded-lg bg-gradient-to-r from-primary-600 to-secondary-600 text-white hover:shadow-lg transition-all disabled:opacity-50 disabled:cursor-not-allowed touch-manipulation flex-shrink-0"
                         title="Send Message"
                     >
-                        <FiSend size={20} />
+                        <FiSend size={18} className="sm:w-5 sm:h-5" />
                     </button>
                 </div>
             </div>

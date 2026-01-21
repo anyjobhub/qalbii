@@ -3,7 +3,7 @@
 ## Problem
 The backend's `FRONTEND_URL` is set to a placeholder value, causing CORS errors.
 
-**Error:** `The 'Access-Control-Allow-Origin' header has a value 'https://your-frontend-url.netlify.app'`
+**Error:** `The 'Access-Control-Allow-Origin' header has a value 'https://your-frontend-url.web.app'`
 
 ## Solution - Update Render Environment Variable
 
@@ -17,8 +17,8 @@ The backend's `FRONTEND_URL` is set to a placeholder value, causing CORS errors.
 
 ### Step 3: Update the Value
 1. Click **"Edit"** next to `FRONTEND_URL`
-2. Change from: `https://your-frontend-url.netlify.app`
-3. Change to: **`https://qalbi-chat.netlify.app`**
+2. Change from: `https://your-frontend-url.web.app`
+3. Change to: **`https://qalbi-family.web.app`**
 4. Click **"Save Changes"**
 
 ### Step 4: Wait for Auto-Deploy
@@ -27,7 +27,7 @@ The backend's `FRONTEND_URL` is set to a placeholder value, causing CORS errors.
 3. Wait for status to show "Live"
 
 ### Step 5: Test Again
-1. Go to https://qalbi-chat.netlify.app
+1. Go to https://qalbi-family.web.app
 2. Try signing up
 3. Should work without CORS errors! ✅
 
@@ -36,7 +36,7 @@ The backend's `FRONTEND_URL` is set to a placeholder value, causing CORS errors.
 ## Quick Copy-Paste
 
 **Variable Name:** `FRONTEND_URL`  
-**New Value:** `https://qalbi-chat.netlify.app`
+**New Value:** `https://qalbi-family.web.app`
 
 ---
 
@@ -58,7 +58,7 @@ curl -I https://qalbi-backend.onrender.com/api/auth/signup
 
 Look for this header in the response:
 ```
-Access-Control-Allow-Origin: https://qalbi-chat.netlify.app
+Access-Control-Allow-Origin: https://qalbi-family.web.app
 ```
 
 ✅ **After this fix, your app will work perfectly!**

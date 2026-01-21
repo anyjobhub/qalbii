@@ -2,8 +2,8 @@
 
 ## ✅ Production URLs (LIVE)
 
-### Frontend (Netlify)
-**https://qalbi-chat.netlify.app**
+### Frontend (Firebase Hosting)
+**https://qalbi-family.web.app**
 
 ### Backend (Render)  
 **https://qalbi-backend.onrender.com**
@@ -26,7 +26,7 @@
 
 ## Quick Test
 
-Visit: **https://qalbi-chat.netlify.app**
+Visit: **https://qalbi-family.web.app**
 
 1. Click "Get Started" → Should see signup page
 2. Create an account → Should redirect to chat
@@ -44,8 +44,18 @@ git commit -m "Your changes"
 git push
 ```
 
-- **Netlify**: Rebuilds frontend (3-5 min)
+- **Firebase Hosting**: Rebuilds frontend (1-2 min)
 - **Render**: Rebuilds backend (5-10 min)
+
+### Firebase Deployment
+
+To deploy frontend to Firebase:
+
+```bash
+cd frontend
+npm run build
+firebase deploy --only hosting
+```
 
 ---
 
@@ -53,7 +63,7 @@ git push
 
 All environment variables are configured in:
 - **Render Dashboard**: Backend settings
-- **Netlify Dashboard**: Frontend settings
+- **Firebase Console**: Frontend hosting settings (if needed)
 
 See `deployment_guide.md` for complete variable list.
 

@@ -41,22 +41,22 @@ export default function ChatList({ chats, allUsers = [], selectedChat, onSelectC
     return (
         <div className="h-full flex flex-col bg-white border-r">
             {/* Search Bar */}
-            <div className="p-4 border-b">
+            <div className="p-3 sm:p-4 border-b">
                 <div className="relative">
-                    <FiSearch className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" />
+                    <FiSearch className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 w-4 h-4 sm:w-5 sm:h-5" />
                     <input
                         type="text"
                         value={searchQuery}
                         onChange={(e) => setSearchQuery(e.target.value)}
-                        className="w-full pl-10 pr-10 py-2 rounded-lg border-2 border-gray-200 focus:border-primary-500 outline-none"
+                        className="w-full pl-9 sm:pl-10 pr-10 py-2 text-sm sm:text-base rounded-lg border-2 border-gray-200 focus:border-primary-500 outline-none"
                         placeholder="Search chats..."
                     />
                     {searchQuery && (
                         <button
                             onClick={() => setSearchQuery('')}
-                            className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600"
+                            className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600 p-1 touch-manipulation"
                         >
-                            <FiX />
+                            <FiX className="w-4 h-4 sm:w-5 sm:h-5" />
                         </button>
                     )}
                 </div>
@@ -77,11 +77,11 @@ export default function ChatList({ chats, allUsers = [], selectedChat, onSelectC
                                     onStartNewChat(user._id);
                                     setSearchQuery('');
                                 }}
-                                className="p-4 border-b cursor-pointer hover:bg-blue-50 transition-colors"
+                                className="p-3 sm:p-4 border-b cursor-pointer hover:bg-blue-50 transition-colors active:bg-blue-100 touch-manipulation"
                             >
-                                <div className="flex items-center gap-3">
+                                <div className="flex items-center gap-2 sm:gap-3">
                                     <div className="relative">
-                                        <div className="w-12 h-12 rounded-full bg-gradient-to-br from-blue-500 to-purple-500 flex items-center justify-center text-white font-bold">
+                                        <div className="w-10 h-10 sm:w-12 sm:h-12 rounded-full bg-gradient-to-br from-blue-500 to-purple-500 flex items-center justify-center text-white font-bold text-sm sm:text-base">
                                             {user.profilePicture ? (
                                                 <img
                                                     src={user.profilePicture}
@@ -93,14 +93,14 @@ export default function ChatList({ chats, allUsers = [], selectedChat, onSelectC
                                             )}
                                         </div>
                                         {user.isOnline && (
-                                            <div className="absolute bottom-0 right-0 w-3 h-3 bg-green-500 rounded-full border-2 border-white" />
+                                            <div className="absolute bottom-0 right-0 w-2.5 h-2.5 sm:w-3 sm:h-3 bg-green-500 rounded-full border-2 border-white" />
                                         )}
                                     </div>
-                                    <div className="flex-1">
-                                        <h3 className="font-semibold text-gray-900">{user.fullName}</h3>
-                                        <p className="text-sm text-gray-500">@{user.username}</p>
+                                    <div className="flex-1 min-w-0">
+                                        <h3 className="font-semibold text-gray-900 text-sm sm:text-base truncate">{user.fullName}</h3>
+                                        <p className="text-xs sm:text-sm text-gray-500 truncate">@{user.username}</p>
                                     </div>
-                                    <span className="text-xs text-blue-600 font-semibold">+ New Chat</span>
+                                    <span className="text-xs sm:text-sm text-blue-600 font-semibold whitespace-nowrap">+ New Chat</span>
                                 </div>
                             </div>
                         ))}
@@ -127,13 +127,13 @@ export default function ChatList({ chats, allUsers = [], selectedChat, onSelectC
                             <div
                                 key={chat._id}
                                 onClick={() => onSelectChat(chat)}
-                                className={`p-4 border-b cursor-pointer transition-colors ${isSelected ? 'bg-primary-50 border-l-4 border-l-primary-600' : 'hover:bg-gray-50'
+                                className={`p-3 sm:p-4 border-b cursor-pointer transition-colors active:bg-gray-100 touch-manipulation ${isSelected ? 'bg-primary-50 border-l-4 border-l-primary-600' : 'hover:bg-gray-50'
                                     }`}
                             >
-                                <div className="flex items-center gap-3">
+                                <div className="flex items-center gap-2 sm:gap-3">
                                     {/* Avatar */}
-                                    <div className="relative">
-                                        <div className="w-12 h-12 rounded-full bg-gradient-to-br from-primary-500 to-secondary-500 flex items-center justify-center text-white font-bold">
+                                    <div className="relative flex-shrink-0">
+                                        <div className="w-10 h-10 sm:w-12 sm:h-12 rounded-full bg-gradient-to-br from-primary-500 to-secondary-500 flex items-center justify-center text-white font-bold text-sm sm:text-base">
                                             {otherUser.profilePicture ? (
                                                 <img
                                                     src={otherUser.profilePicture}
@@ -146,37 +146,37 @@ export default function ChatList({ chats, allUsers = [], selectedChat, onSelectC
                                         </div>
                                         {/* Online Indicator */}
                                         {otherUser.isOnline && (
-                                            <div className="absolute bottom-0 right-0 w-3 h-3 bg-green-500 rounded-full border-2 border-white" />
+                                            <div className="absolute bottom-0 right-0 w-2.5 h-2.5 sm:w-3 sm:h-3 bg-green-500 rounded-full border-2 border-white" />
                                         )}
                                     </div>
 
                                     {/* Chat Info */}
                                     <div className="flex-1 min-w-0">
-                                        <div className="flex items-center justify-between mb-1">
-                                            <h3 className="font-semibold text-gray-900 truncate">
+                                        <div className="flex items-center justify-between mb-1 gap-2">
+                                            <h3 className="font-semibold text-gray-900 truncate text-sm sm:text-base flex-1 min-w-0">
                                                 {otherUser.fullName}
                                             </h3>
-                                            <div className="flex flex-col items-end">
+                                            <div className="flex flex-col items-end flex-shrink-0">
                                                 {chat.lastMessage && isValidDate(chat.lastMessage.createdAt) && (
-                                                    <span className="text-xs text-gray-500">
+                                                    <span className="text-xs text-gray-500 whitespace-nowrap">
                                                         {formatDistanceToNow(new Date(chat.lastMessage.createdAt), {
                                                             addSuffix: false,
                                                         })}
                                                     </span>
                                                 )}
                                                 {!otherUser.isOnline && otherUser.lastSeen && (
-                                                    <span className="text-xs text-gray-400">
+                                                    <span className="text-xs text-gray-400 whitespace-nowrap">
                                                         {formatExactTime(otherUser.lastSeen)}
                                                     </span>
                                                 )}
                                             </div>
                                         </div>
-                                        <div className="flex items-center justify-between">
-                                            <p className="text-sm text-gray-600 truncate">
+                                        <div className="flex items-center justify-between gap-2">
+                                            <p className="text-xs sm:text-sm text-gray-600 truncate flex-1 min-w-0">
                                                 {chat.lastMessage?.content || 'No messages yet'}
                                             </p>
                                             {unreadCount > 0 && (
-                                                <span className="ml-2 bg-primary-600 text-white text-xs rounded-full px-2 py-0.5 min-w-[20px] text-center">
+                                                <span className="ml-2 bg-primary-600 text-white text-xs rounded-full px-2 py-0.5 min-w-[20px] text-center flex-shrink-0">
                                                     {unreadCount}
                                                 </span>
                                             )}

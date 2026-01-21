@@ -132,7 +132,7 @@ Frontend runs on `http://localhost:5173`
 Build Command: `npm install`
 Start Command: `npm start`
 
-### Frontend (Netlify)
+### Frontend (Firebase Hosting)
 
 1. Build the frontend:
 ```bash
@@ -140,11 +140,12 @@ cd frontend
 npm run build
 ```
 
-2. Deploy to Netlify:
-- Connect GitHub repository
-- Set build command: `npm run build`
-- Set publish directory: `dist`
-- Add environment variables
+2. Deploy to Firebase:
+```bash
+firebase deploy --only hosting
+```
+
+Or you can set up GitHub Actions for automatic deployment on push to main branch.
 
 ## 📝 Environment Variables
 

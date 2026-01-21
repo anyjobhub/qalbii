@@ -22,17 +22,17 @@ export default function Message({ message, currentUserId, onDelete, onReply }) {
     }
 
     return (
-        <div className={`flex ${isSender ? 'justify-end' : 'justify-start'} mb-4 group`}>
-            <div className={`max-w-[70%] ${isSender ? 'order-2' : 'order-1'}`}>
+        <div className={`flex ${isSender ? 'justify-end' : 'justify-start'} mb-3 sm:mb-4 group`}>
+            <div className={`max-w-[85%] sm:max-w-[75%] md:max-w-[70%] ${isSender ? 'order-2' : 'order-1'}`}>
                 {!isSender && (
                     <p className="text-xs text-gray-500 mb-1 ml-2">{message.sender.fullName}</p>
                 )}
 
                 <div className="relative">
                     <div
-                        className={`rounded-2xl px-4 py-2 ${isSender
-                            ? 'bg-gradient-to-r from-primary-600 to-secondary-600 text-white'
-                            : 'bg-gray-100 text-gray-900'
+                        className={`rounded-2xl px-3 py-2 sm:px-4 text-sm sm:text-base ${isSender
+                                ? 'bg-gradient-to-r from-primary-600 to-secondary-600 text-white'
+                                : 'bg-gray-100 text-gray-900'
                             }`}
                     >
                         {/* Reply Preview */}
@@ -41,12 +41,13 @@ export default function Message({ message, currentUserId, onDelete, onReply }) {
                         )}
                         {/* Media */}
                         {message.media?.url && (
-                            <div className="mb-2">
+                            <div className="mb-2 max-w-full overflow-hidden">
                                 {message.media.type === 'image' && (
                                     <img
                                         src={message.media.url}
                                         alt="Shared"
                                         className="rounded-lg max-w-full h-auto"
+                                        style={{ maxHeight: '300px' }}
                                     />
                                 )}
                                 {message.media.type === 'video' && (
@@ -54,10 +55,11 @@ export default function Message({ message, currentUserId, onDelete, onReply }) {
                                         src={message.media.url}
                                         controls
                                         className="rounded-lg max-w-full h-auto"
+                                        style={{ maxHeight: '300px' }}
                                     />
                                 )}
                                 {message.media.type === 'audio' && (
-                                    <audio src={message.media.url} controls className="w-full" />
+                                    <audio src={message.media.url} controls className="w-full max-w-full" />
                                 )}
                             </div>
                         )}
@@ -92,15 +94,15 @@ export default function Message({ message, currentUserId, onDelete, onReply }) {
                     </div>
 
                     {/* Action Buttons - Reply and Delete */}
-                    <div className="absolute -top-2 -right-2 opacity-0 group-hover:opacity-100 transition-opacity flex gap-1">
+                    <div className="absolute -top-2 -right-2 opacity-0 group-hover:opacity-100 group-active:opacity-100 transition-opacity flex gap-1">
                         {/* Reply Button - visible for everyone */}
                         {onReply && (
                             <button
                                 onClick={() => onReply(message)}
-                                className="bg-white rounded-full p-1.5 shadow-lg hover:bg-primary-50"
+                                className="bg-white rounded-full p-1.5 sm:p-2 shadow-lg hover:bg-primary-50 touch-manipulation min-w-[36px] min-h-[36px] flex items-center justify-center"
                                 title="Reply to this message"
                             >
-                                <FiCornerUpLeft className="text-primary-600" size={16} />
+                                <FiCornerUpLeft className="text-primary-600" size={14} />
                             </button>
                         )}
 
@@ -109,22 +111,22 @@ export default function Message({ message, currentUserId, onDelete, onReply }) {
                             <div className="relative">
                                 <button
                                     onClick={() => setShowMenu(!showMenu)}
-                                    className="bg-white rounded-full p-1.5 shadow-lg hover:bg-gray-100"
+                                    className="bg-white rounded-full p-1.5 sm:p-2 shadow-lg hover:bg-gray-100 touch-manipulation min-w-[36px] min-h-[36px] flex items-center justify-center"
                                 >
-                                    <MdDelete className="text-red-500" size={16} />
+                                    <MdDelete className="text-red-500" size={14} />
                                 </button>
 
                                 {showMenu && (
-                                    <div className="absolute right-0 mt-2 bg-white rounded-lg shadow-xl border z-10 overflow-hidden">
+                                    <div className="absolute right-0 mt-2 bg-white rounded-lg shadow-xl border z-10 overflow-hidden min-w-[160px]">
                                         <button
                                             onClick={() => handleDelete('self')}
-                                            className="block w-full px-4 py-2 text-left text-sm hover:bg-gray-50 whitespace-nowrap"
+                                            className="block w-full px-4 py-3 text-left text-sm hover:bg-gray-50 whitespace-nowrap touch-manipulation"
                                         >
                                             Delete for me
                                         </button>
                                         <button
                                             onClick={() => handleDelete('both')}
-                                            className="block w-full px-4 py-2 text-left text-sm hover:bg-gray-50 text-red-600 whitespace-nowrap"
+                                            className="block w-full px-4 py-3 text-left text-sm hover:bg-gray-50 text-red-600 whitespace-nowrap touch-manipulation"
                                         >
                                             Delete for everyone
                                         </button>

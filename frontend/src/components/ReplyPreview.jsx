@@ -7,25 +7,25 @@ export default function ReplyPreview({ replyTo, isInputPreview = false, onClose 
     if (replyTo.deletedForEveryone) {
         return (
             <div
-                className={`flex items-center gap-2 p-2 rounded-lg border-l-4 ${isInputPreview
+                className={`flex items-center gap-2 p-2 rounded-lg border-l-4 text-sm ${isInputPreview
                         ? 'bg-gray-100 border-gray-400'
                         : 'bg-gray-50 border-gray-300 mb-2'
                     }`}
             >
                 <div className="flex-1 min-w-0">
-                    <p className="text-xs text-gray-500 font-medium">
+                    <p className="text-xs font-medium text-gray-500 truncate">
                         {replyTo.sender?.fullName || 'Unknown'}
                     </p>
-                    <p className="text-sm text-gray-400 italic truncate">
+                    <p className="text-xs sm:text-sm text-gray-400 italic truncate">
                         This message was deleted
                     </p>
                 </div>
                 {isInputPreview && onClose && (
                     <button
                         onClick={onClose}
-                        className="flex-shrink-0 text-gray-500 hover:text-gray-700"
+                        className="flex-shrink-0 text-gray-500 hover:text-gray-700 p-1 touch-manipulation min-w-[36px] min-h-[36px] flex items-center justify-center"
                     >
-                        <FiX size={18} />
+                        <FiX size={16} />
                     </button>
                 )}
             </div>
@@ -75,8 +75,8 @@ export default function ReplyPreview({ replyTo, isInputPreview = false, onClose 
     return (
         <div
             className={`flex items-center gap-2 p-2 rounded-lg border-l-4 ${isInputPreview
-                    ? 'bg-primary-50 border-primary-500'
-                    : 'bg-gray-50 border-primary-400 mb-2'
+                ? 'bg-primary-50 border-primary-500'
+                : 'bg-gray-50 border-primary-400 mb-2'
                 }`}
         >
             <div className="flex-1 min-w-0">

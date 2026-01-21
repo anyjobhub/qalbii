@@ -250,7 +250,7 @@ export default function Chat() {
 
             <div className="flex-1 flex overflow-hidden">
                 {/* Left Panel - Chat List */}
-                <div className="w-full md:w-96 flex-shrink-0">
+                <div className={`w-full md:w-96 flex-shrink-0 ${selectedChat ? 'hidden md:block' : 'block'}`}>
                     <ChatList
                         chats={chats}
                         allUsers={allUsers}
@@ -262,7 +262,7 @@ export default function Chat() {
                 </div>
 
                 {/* Right Panel - Chat Window */}
-                <div className="flex-1 hidden md:block">
+                <div className={`flex-1 ${selectedChat ? 'block' : 'hidden md:block'}`}>
                     {selectedChat ? (
                         <ChatWindow
                             chat={selectedChat}
@@ -272,15 +272,16 @@ export default function Chat() {
                             onSendMessage={handleSendMessage}
                             onDeleteMessage={handleDeleteMessage}
                             onDeleteChat={handleDeleteChat}
+                            onBack={() => setSelectedChat(null)}
                         />
                     ) : (
                         <div className="h-full flex items-center justify-center bg-gradient-to-br from-purple-50 to-pink-50">
-                            <div className="text-center">
-                                <FiMessageCircle className="text-8xl text-gray-300 mx-auto mb-4" />
-                                <h2 className="text-2xl font-bold text-gray-400 mb-2">
+                            <div className="text-center px-4">
+                                <FiMessageCircle className="text-6xl sm:text-8xl text-gray-300 mx-auto mb-4" />
+                                <h2 className="text-xl sm:text-2xl font-bold text-gray-400 mb-2">
                                     Select a chat to start messaging
                                 </h2>
-                                <p className="text-gray-400">
+                                <p className="text-sm sm:text-base text-gray-400">
                                     Choose a conversation from the left to begin
                                 </p>
                             </div>
@@ -291,7 +292,7 @@ export default function Chat() {
 
             {/* Connection Status */}
             {!connected && (
-                <div className="fixed bottom-4 right-4 bg-yellow-500 text-white px-4 py-2 rounded-lg shadow-lg">
+                <div className="fixed bottom-4 right-4 bg-yellow-500 text-white px-3 py-2 sm:px-4 rounded-lg shadow-lg text-sm sm:text-base z-50">
                     Reconnecting...
                 </div>
             )}

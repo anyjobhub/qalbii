@@ -16,63 +16,57 @@ export default function Navbar() {
 
     return (
         <nav className="bg-gradient-to-r from-primary-600 to-secondary-600 text-white shadow-lg">
-            <div className="max-w-7xl mx-auto px-4">
-                <div className="flex items-center justify-between h-16">
+            <div className="max-w-7xl mx-auto px-2 sm:px-4">
+                <div className="flex items-center justify-between h-14 sm:h-16">
                     {/* Logo */}
-                    <Link to="/chat" className="text-2xl font-bold hover:opacity-80 transition">
+                    <Link to="/chat" className="text-lg sm:text-2xl font-bold hover:opacity-80 transition">
                         Qalbi
                     </Link>
 
                     {/* Navigation Links */}
-                    <div className="flex items-center gap-2">
+                    <div className="flex items-center gap-1 sm:gap-2">
                         <Link
                             to="/chat"
-                            className={`px-4 py-2 rounded-lg flex items-center gap-2 transition ${isActive('/chat')
-                                    ? 'bg-white/20 font-semibold'
-                                    : 'hover:bg-white/10'
+                            className={`px-2 sm:px-4 py-2 rounded-lg flex items-center gap-1 sm:gap-2 transition touch-manipulation ${isActive('/chat') ? 'bg-white/20 font-semibold' : 'hover:bg-white/10'
                                 }`}
                         >
-                            <FiMessageCircle />
-                            <span className="hidden sm:inline">Chat</span>
+                            <FiMessageCircle size={18} className="sm:w-5 sm:h-5" />
+                            <span className="hidden sm:inline text-sm sm:text-base">Chat</span>
                         </Link>
 
                         <Link
                             to="/profile"
-                            className={`px-4 py-2 rounded-lg flex items-center gap-2 transition ${isActive('/profile')
-                                    ? 'bg-white/20 font-semibold'
-                                    : 'hover:bg-white/10'
+                            className={`px-2 sm:px-4 py-2 rounded-lg flex items-center gap-1 sm:gap-2 transition touch-manipulation ${isActive('/profile') ? 'bg-white/20 font-semibold' : 'hover:bg-white/10'
                                 }`}
                         >
-                            <FiUser />
-                            <span className="hidden sm:inline">Profile</span>
+                            <FiUser size={18} className="sm:w-5 sm:h-5" />
+                            <span className="hidden sm:inline text-sm sm:text-base">Profile</span>
                         </Link>
 
                         <Link
                             to="/notifications"
-                            className={`px-4 py-2 rounded-lg flex items-center gap-2 transition ${isActive('/notifications')
-                                    ? 'bg-white/20 font-semibold'
-                                    : 'hover:bg-white/10'
+                            className={`px-2 sm:px-4 py-2 rounded-lg flex items-center gap-1 sm:gap-2 transition touch-manipulation ${isActive('/notifications') ? 'bg-white/20 font-semibold' : 'hover:bg-white/10'
                                 }`}
                         >
-                            <FiBell />
-                            <span className="hidden sm:inline">Notifications</span>
+                            <FiBell size={18} className="sm:w-5 sm:h-5" />
+                            <span className="hidden sm:inline text-sm sm:text-base">Notifications</span>
                         </Link>
 
                         <button
                             onClick={() => window.location.reload()}
-                            className="px-4 py-2 rounded-lg flex items-center gap-2 hover:bg-white/10 transition"
+                            className="px-2 sm:px-4 py-2 rounded-lg flex items-center gap-1 sm:gap-2 hover:bg-white/10 transition touch-manipulation"
                             title="Refresh"
                         >
-                            <FiRefreshCw />
+                            <FiRefreshCw size={18} className="sm:w-5 sm:h-5" />
                         </button>
 
                         <button
                             onClick={handleLogout}
-                            className="px-4 py-2 rounded-lg flex items-center gap-2 hover:bg-white/10 transition"
+                            className="px-2 sm:px-4 py-2 rounded-lg flex items-center gap-1 sm:gap-2 hover:bg-white/10 transition touch-manipulation"
                             title="Logout"
                         >
-                            <FiLogOut />
-                            <span className="hidden sm:inline">Logout</span>
+                            <FiLogOut size={18} className="sm:w-5 sm:h-5" />
+                            <span className="hidden sm:inline text-sm sm:text-base">Logout</span>
                         </button>
                     </div>
                 </div>
