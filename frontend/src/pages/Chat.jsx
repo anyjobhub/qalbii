@@ -9,6 +9,7 @@ import { FiMessageCircle } from 'react-icons/fi';
 import useNotificationPreferences from '../hooks/useNotificationPreferences';
 import useNotificationSound from '../hooks/useNotificationSound';
 import useTabFocus from '../hooks/useTabFocus';
+import useWebNotification from '../hooks/useWebNotification';
 
 export default function Chat() {
     const { user } = useAuth();
@@ -18,6 +19,9 @@ export default function Chat() {
     const notificationPreferences = useNotificationPreferences();
     const { playNotificationSound } = useNotificationSound(notificationPreferences);
     const isTabFocused = useTabFocus();
+
+    // Browser notification hook
+    const { isSupported, permission, requestPermission, showNotification } = useWebNotification();
 
     const [chats, setChats] = useState([]);
     const [allUsers, setAllUsers] = useState([]);
@@ -45,6 +49,16 @@ export default function Chat() {
 
         fetchData();
     }, []);
+
+    // Request browser notification permission on mount
+    useEffect(() => {
+        // Only request if supported and not already decided
+        if (isSupported && permission === 'default') {
+            // Optionally auto-request or wait for user action
+            // For now, we'll let users enable it in settings
+            console.log('📬 Browser notifications available. Enable in settings.');
+        }
+    }, [isSupported, permission]);
 
     // Fetch messages when chat is selected
     useEffect(() => {
@@ -89,6 +103,27 @@ export default function Chat() {
                 // Play notification sound for messages from other users
                 if (message.sender._id !== user.id) {
                     playNotificationSound(message.sender._id, user.id);
+                }
+
+                // Show browser notification if tab is not focused
+                if (!isTabFocused && permission === 'granted' && message.sender._id !== user.id) {
+                    const senderName = message.sender?.fullName || 'Someone';
+                    const messagePreview = message.content?.substring(0, 100) ||
+                        (message.media ? '📎 Sent a file' : 'New message');
+
+                    const notification = showNotification(senderName, {
+                        body: messagePreview,
+                        tag: message.chat, // Prevents duplicate notifications for same chat
+                        data: { chatId: message.chat, messageId: message._id },
+                    });
+
+                    // Click notification to focus window
+                    if (notification) {
+                        notification.onclick = () => {
+                            window.focus();
+                            notification.close();
+                        };
+                    }
                 }
 
                 // Mark as delivered

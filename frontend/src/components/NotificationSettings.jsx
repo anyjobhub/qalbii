@@ -1,10 +1,12 @@
 import { FiBell, FiBellOff, FiVolume2 } from 'react-icons/fi';
 import useNotificationPreferences from '../hooks/useNotificationPreferences';
 import useNotificationSound from '../hooks/useNotificationSound';
+import useWebNotification from '../hooks/useWebNotification';
 
 export default function NotificationSettings() {
     const preferences = useNotificationPreferences();
     const { testNotificationSound } = useNotificationSound(preferences);
+    const { isSupported, permission, requestPermission } = useWebNotification();
 
     const handleVolumeChange = (e) => {
         const volume = parseFloat(e.target.value) / 100;
@@ -36,6 +38,49 @@ export default function NotificationSettings() {
                     </button>
                 </label>
             </div>
+
+            {/* Browser Notifications */}
+            {isSupported && (
+                <div className="mb-3 sm:mb-4 pb-3 sm:pb-4 border-b">
+                    <div className="flex items-center justify-between mb-2">
+                        <span className="text-xs sm:text-sm font-medium text-gray-700">
+                            Browser Notifications
+                        </span>
+                        {permission === 'granted' && (
+                            <span className="text-xs text-green-600 font-semibold">✓ Enabled</span>
+                        )}
+                        {permission === 'denied' && (
+                            <span className="text-xs text-red-600 font-semibold">✗ Blocked</span>
+                        )}
+                    </div>
+
+                    {permission === 'default' && (
+                        <div>
+                            <p className="text-xs text-gray-500 mb-2">
+                                Get notifications even when the app is in background
+                            </p>
+                            <button
+                                onClick={requestPermission}
+                                className="w-full py-2 px-3 text-sm bg-blue-500 text-white rounded-lg hover:bg-blue-600 transition-colors touch-manipulation"
+                            >
+                                Enable Browser Notifications
+                            </button>
+                        </div>
+                    )}
+
+                    {permission === 'denied' && (
+                        <p className="text-xs text-gray-500">
+                            Please enable notifications in your browser settings to receive alerts when app is in background
+                        </p>
+                    )}
+
+                    {permission === 'granted' && (
+                        <p className="text-xs text-green-600">
+                            You'll receive notifications even when the app is in background
+                        </p>
+                    )}
+                </div>
+            )}
 
             {/* Volume Control */}
             <div className={`mb-3 sm:mb-4 ${!preferences.soundEnabled ? 'opacity-50' : ''}`}>
