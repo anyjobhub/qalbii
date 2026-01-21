@@ -34,6 +34,14 @@ router.get('/:chatId', protect, async (req, res) => {
             deletedForEveryone: false,
         })
             .populate('sender', 'username fullName profilePicture')
+            .populate({
+                path: 'replyTo',
+                select: 'content sender createdAt media deletedForEveryone',
+                populate: {
+                    path: 'sender',
+                    select: 'username fullName profilePicture',
+                },
+            })
             .sort({ createdAt: -1 })
             .limit(limit * 1)
             .skip((page - 1) * limit);

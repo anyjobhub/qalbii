@@ -12,7 +12,7 @@ router.get('/', protect, async (req, res) => {
     try {
         const chats = await Chat.find({
             participants: req.user._id,
-            deletedBy: { $ne: req.user._id },
+            'deletedBy.user': { $ne: req.user._id },
         })
             .populate('participants', 'username fullName profilePicture isOnline lastSeen')
             .populate({
@@ -66,9 +66,13 @@ router.post('/', protect, async (req, res) => {
         }).populate('participants', 'username fullName profilePicture isOnline lastSeen');
 
         if (chat) {
-            // Remove from deletedBy if it was deleted
-            if (chat.deletedBy.includes(req.user._id)) {
-                chat.deletedBy = chat.deletedBy.filter((id) => !id.equals(req.user._id));
+            // Remove from deletedBy if it was deleted (restore chat)
+            const deletedIndex = chat.deletedBy.findIndex(
+                (item) => item.user.toString() === req.user._id.toString()
+            );
+
+            if (deletedIndex !== -1) {
+                chat.deletedBy.splice(deletedIndex, 1);
                 await chat.save();
             }
             return res.json({ chat });
@@ -102,17 +106,32 @@ router.delete('/:id', protect, async (req, res) => {
             return res.status(404).json({ message: 'Chat not found' });
         }
 
-        // Add current user to deletedBy array
-        if (!chat.deletedBy.includes(req.user._id)) {
-            chat.deletedBy.push(req.user._id);
+        // Add current user to deletedBy array with timestamp
+        const alreadyDeleted = chat.deletedBy.some(
+            (item) => item.user.toString() === req.user._id.toString()
+        );
+
+        if (!alreadyDeleted) {
+            chat.deletedBy.push({
+                user: req.user._id,
+                deletedAt: new Date(),
+            });
             await chat.save();
+
+            // Mark all existing messages as deleted for this user
+            await Message.updateMany(
+                { chat: chat._id },
+                { $addToSet: { deletedFor: req.user._id } }
+            );
         }
 
-        // If both participants deleted, actually delete the chat and messages
-        if (chat.deletedBy.length === chat.participants.length) {
-            await Message.deleteMany({ chat: chat._id });
-            await Chat.deleteOne({ _id: chat._id });
-        }
+        // If both participants deleted, optionally clean up (keep for now)
+        // This ensures data is preserved even if both users delete
+        // Uncomment below to permanently delete when both users delete:
+        // if (chat.deletedBy.length === chat.participants.length) {
+        //     await Message.deleteMany({ chat: chat._id });
+        //     await Chat.deleteOne({ _id: chat._id });
+        // }
 
         res.json({ message: 'Chat deleted successfully' });
     } catch (error) {

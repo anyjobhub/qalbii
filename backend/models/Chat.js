@@ -15,8 +15,14 @@ const chatSchema = new mongoose.Schema(
         },
         deletedBy: [
             {
-                type: mongoose.Schema.Types.ObjectId,
-                ref: 'User',
+                user: {
+                    type: mongoose.Schema.Types.ObjectId,
+                    ref: 'User',
+                },
+                deletedAt: {
+                    type: Date,
+                    default: Date.now,
+                },
             },
         ],
     },

@@ -17,10 +17,18 @@ export default function (io) {
                 socket.userId = userId;
 
                 // Update user status
-                await User.findByIdAndUpdate(userId, { isOnline: true, lastSeen: new Date() });
+                const updatedUser = await User.findByIdAndUpdate(
+                    userId,
+                    { isOnline: true, lastSeen: new Date() },
+                    { new: true }
+                );
 
                 // Notify user's contacts that they're online
-                socket.broadcast.emit('user:status', { userId, isOnline: true });
+                socket.broadcast.emit('user:status', {
+                    userId,
+                    isOnline: true,
+                    lastSeen: updatedUser.lastSeen
+                });
             } catch (error) {
                 console.error('user:online error:', error);
             }
@@ -41,28 +49,69 @@ export default function (io) {
         // Send message
         socket.on('message:send', async (data) => {
             try {
-                const { chatId, content, media } = data;
+                const { chatId, content, media, replyToId } = data;
 
-                // Create message
+                // Create message with optional reply
                 const message = await Message.create({
                     chat: chatId,
                     sender: socket.userId,
                     content: content || '',
                     media: media || { type: '', url: '' },
+                    replyTo: replyToId || null,
                     status: 'sent',
                 });
 
-                // Populate sender info
+                // Populate sender info and reply data
                 await message.populate('sender', 'username fullName profilePicture');
-
-                // Update chat's lastMessage
-                await Chat.findByIdAndUpdate(chatId, {
-                    lastMessage: message._id,
-                    updatedAt: new Date(),
+                await message.populate({
+                    path: 'replyTo',
+                    select: 'content sender createdAt media deletedForEveryone',
+                    populate: {
+                        path: 'sender',
+                        select: 'username fullName profilePicture',
+                    },
                 });
 
-                // Get chat to find recipient
+                // Update chat's lastMessage
+                const updatedChat = await Chat.findByIdAndUpdate(
+                    chatId,
+                    {
+                        lastMessage: message._id,
+                        updatedAt: new Date(),
+                    },
+                    { new: true }
+                );
+
+                // Check if recipient had deleted this chat - if so, restore it for them
                 const chat = await Chat.findById(chatId).populate('participants', '_id username fullName');
+                const recipient = chat.participants.find((p) => p._id.toString() !== socket.userId);
+
+                if (recipient) {
+                    // Find if recipient has deleted this chat
+                    const recipientDeletedIndex = chat.deletedBy.findIndex(
+                        (item) => item.user.toString() === recipient._id.toString()
+                    );
+
+                    // If recipient had deleted the chat, restore it (remove from deletedBy)
+                    if (recipientDeletedIndex !== -1) {
+                        chat.deletedBy.splice(recipientDeletedIndex, 1);
+                        await chat.save();
+
+                        // Notify recipient that they have a new chat (chat reappeared)
+                        const recipientSocketId = onlineUsers.get(recipient._id.toString());
+                        if (recipientSocketId) {
+                            io.to(recipientSocketId).emit('chat:restored', {
+                                chatId: chat._id,
+                                chat: await Chat.findById(chat._id)
+                                    .populate('participants', 'username fullName profilePicture isOnline lastSeen')
+                                    .populate({
+                                        path: 'lastMessage',
+                                        select: 'content sender createdAt status media',
+                                    }),
+                            });
+                        }
+                    }
+                }
 
                 // Emit message to the chat room
                 io.to(chatId).emit('message:receive', message);
@@ -178,15 +227,20 @@ export default function (io) {
                     onlineUsers.delete(socket.userId);
 
                     // Update user status
-                    await User.findByIdAndUpdate(socket.userId, {
-                        isOnline: false,
-                        lastSeen: new Date(),
-                    });
+                    const updatedUser = await User.findByIdAndUpdate(
+                        socket.userId,
+                        {
+                            isOnline: false,
+                            lastSeen: new Date(),
+                        },
+                        { new: true }
+                    );
 
                     // Notify user's contacts that they're offline
                     socket.broadcast.emit('user:status', {
                         userId: socket.userId,
                         isOnline: false,
+                        lastSeen: updatedUser.lastSeen,
                     });
                 }
 
