@@ -117,7 +117,6 @@ export default function (io) {
                 io.to(chatId).emit('message:receive', message);
 
                 // Create notification for recipient if they're offline
-                const recipient = chat.participants.find((p) => p._id.toString() !== socket.userId);
                 if (recipient && !onlineUsers.has(recipient._id.toString())) {
                     await Notification.create({
                         user: recipient._id,
