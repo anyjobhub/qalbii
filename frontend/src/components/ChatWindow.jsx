@@ -1,7 +1,10 @@
 import { useState, useEffect, useRef } from 'react';
-import { FiSend, FiImage, FiTrash2 } from 'react-icons/fi';
+import { FiSend, FiImage, FiTrash2, FiBell } from 'react-icons/fi';
 import Message from './Message';
 import TypingIndicator from './TypingIndicator';
+import NotificationSettings from './NotificationSettings';
+import ReplyPreview from './ReplyPreview';
+import { formatLastSeen } from '../utils/formatTime';
 import api from '../utils/api';
 
 export default function ChatWindow({
@@ -17,9 +20,12 @@ export default function ChatWindow({
     const [isTyping, setIsTyping] = useState(false);
     const [typingUsers, setTypingUsers] = useState(new Set());
     const [uploadingMedia, setUploadingMedia] = useState(false);
+    const [showNotificationSettings, setShowNotificationSettings] = useState(false);
+    const [replyToMessage, setReplyToMessage] = useState(null);
     const messagesEndRef = useRef(null);
     const fileInputRef = useRef(null);
     const typingTimeoutRef = useRef(null);
+    const notificationSettingsRef = useRef(null);
 
     const otherUser = chat.participants.find((p) => p._id !== currentUser.id);
 
@@ -58,6 +64,26 @@ export default function ChatWindow({
         };
     }, [socket, currentUser.id]);
 
+    // Close notification settings when clicking outside
+    useEffect(() => {
+        const handleClickOutside = (event) => {
+            if (
+                notificationSettingsRef.current &&
+                !notificationSettingsRef.current.contains(event.target)
+            ) {
+                setShowNotificationSettings(false);
+            }
+        };
+
+        if (showNotificationSettings) {
+            document.addEventListener('mousedown', handleClickOutside);
+        }
+
+        return () => {
+            document.removeEventListener('mousedown', handleClickOutside);
+        };
+    }, [showNotificationSettings]);
+
     const handleTyping = () => {
         if (!isTyping && socket) {
             setIsTyping(true);
@@ -88,8 +114,12 @@ export default function ChatWindow({
     const handleSendMessage = () => {
         if (!newMessage.trim()) return;
 
-        onSendMessage({ content: newMessage });
+        onSendMessage({
+            content: newMessage,
+            replyToId: replyToMessage?._id
+        });
         setNewMessage('');
+        setReplyToMessage(null); // Clear reply after sending
 
         // Stop typing indicator
         if (socket) {
@@ -131,7 +161,11 @@ export default function ChatWindow({
                 },
             });
 
-            onSendMessage({ media: response.data });
+            onSendMessage({
+                media: response.data,
+                replyToId: replyToMessage?._id
+            });
+            setReplyToMessage(null); // Clear reply after sending media
         } catch (error) {
             console.error('File upload error:', error);
             alert('Failed to upload file');
@@ -164,19 +198,39 @@ export default function ChatWindow({
                     </div>
                     <div>
                         <h2 className="font-bold text-gray-900">{otherUser.fullName}</h2>
-                        <p className="text-sm text-gray-500">
-                            {otherUser.isOnline ? 'Online' : 'Offline'}
+                        <p className={`text-sm ${otherUser.isOnline ? 'text-green-600 font-medium' : 'text-gray-500'}`}>
+                            {formatLastSeen(otherUser.isOnline, otherUser.lastSeen)}
                         </p>
                     </div>
                 </div>
 
-                <button
-                    onClick={onDeleteChat}
-                    className="text-red-500 hover:text-red-700 p-2 rounded-lg hover:bg-red-50"
-                    title="Delete Chat"
-                >
-                    <FiTrash2 size={20} />
-                </button>
+                <div className="flex items-center gap-2">
+                    {/* Notification Settings */}
+                    <div className="relative" ref={notificationSettingsRef}>
+                        <button
+                            onClick={() => setShowNotificationSettings(!showNotificationSettings)}
+                            className="text-primary-600 hover:text-primary-700 p-2 rounded-lg hover:bg-primary-50"
+                            title="Notification Settings"
+                        >
+                            <FiBell size={20} />
+                        </button>
+
+                        {showNotificationSettings && (
+                            <div className="absolute right-0 top-12 z-50">
+                                <NotificationSettings />
+                            </div>
+                        )}
+                    </div>
+
+                    {/* Delete Chat */}
+                    <button
+                        onClick={onDeleteChat}
+                        className="text-red-500 hover:text-red-700 p-2 rounded-lg hover:bg-red-50"
+                        title="Delete Chat"
+                    >
+                        <FiTrash2 size={20} />
+                    </button>
+                </div>
             </div>
 
             {/* Messages */}
@@ -187,6 +241,7 @@ export default function ChatWindow({
                         message={message}
                         currentUserId={currentUser.id}
                         onDelete={onDeleteMessage}
+                        onReply={setReplyToMessage}
                     />
                 ))}
 
@@ -199,6 +254,17 @@ export default function ChatWindow({
 
                 <div ref={messagesEndRef} />
             </div>
+
+            {/* Reply Preview Input Box */}
+            {replyToMessage && (
+                <div className="px-4 py-2 bg-gray-50 border-t">
+                    <ReplyPreview
+                        replyTo={replyToMessage}
+                        isInputPreview={true}
+                        onClose={() => setReplyToMessage(null)}
+                    />
+                </div>
+            )}
 
             {/* Input Area */}
             <div className="p-4 border-t bg-white">

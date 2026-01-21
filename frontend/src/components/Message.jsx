@@ -1,9 +1,10 @@
 import { formatDistanceToNow } from 'date-fns';
-import { FiCheck, FiCheckCircle } from 'react-icons/fi';
+import { FiCheck, FiCheckCircle, FiCornerUpLeft } from 'react-icons/fi';
 import { MdDelete } from 'react-icons/md';
 import { useState } from 'react';
+import ReplyPreview from './ReplyPreview';
 
-export default function Message({ message, currentUserId, onDelete }) {
+export default function Message({ message, currentUserId, onDelete, onReply }) {
     const [showMenu, setShowMenu] = useState(false);
     const isSender = message.sender._id === currentUserId;
 
@@ -30,10 +31,14 @@ export default function Message({ message, currentUserId, onDelete }) {
                 <div className="relative">
                     <div
                         className={`rounded-2xl px-4 py-2 ${isSender
-                                ? 'bg-gradient-to-r from-primary-600 to-secondary-600 text-white'
-                                : 'bg-gray-100 text-gray-900'
+                            ? 'bg-gradient-to-r from-primary-600 to-secondary-600 text-white'
+                            : 'bg-gray-100 text-gray-900'
                             }`}
                     >
+                        {/* Reply Preview */}
+                        {message.replyTo && (
+                            <ReplyPreview replyTo={message.replyTo} isInputPreview={false} />
+                        )}
                         {/* Media */}
                         {message.media?.url && (
                             <div className="mb-2">
@@ -86,34 +91,48 @@ export default function Message({ message, currentUserId, onDelete }) {
                         </div>
                     </div>
 
-                    {/* Delete Menu */}
-                    {isSender && (
-                        <div className="absolute -top-2 -right-2 opacity-0 group-hover:opacity-100 transition-opacity">
+                    {/* Action Buttons - Reply and Delete */}
+                    <div className="absolute -top-2 -right-2 opacity-0 group-hover:opacity-100 transition-opacity flex gap-1">
+                        {/* Reply Button - visible for everyone */}
+                        {onReply && (
                             <button
-                                onClick={() => setShowMenu(!showMenu)}
-                                className="bg-white rounded-full p-1.5 shadow-lg hover:bg-gray-100"
+                                onClick={() => onReply(message)}
+                                className="bg-white rounded-full p-1.5 shadow-lg hover:bg-primary-50"
+                                title="Reply to this message"
                             >
-                                <MdDelete className="text-red-500" size={16} />
+                                <FiCornerUpLeft className="text-primary-600" size={16} />
                             </button>
+                        )}
 
-                            {showMenu && (
-                                <div className="absolute right-0 mt-2 bg-white rounded-lg shadow-xl border z-10 overflow-hidden">
-                                    <button
-                                        onClick={() => handleDelete('self')}
-                                        className="block w-full px-4 py-2 text-left text-sm hover:bg-gray-50 whitespace-nowrap"
-                                    >
-                                        Delete for me
-                                    </button>
-                                    <button
-                                        onClick={() => handleDelete('both')}
-                                        className="block w-full px-4 py-2 text-left text-sm hover:bg-gray-50 text-red-600 whitespace-nowrap"
-                                    >
-                                        Delete for everyone
-                                    </button>
-                                </div>
-                            )}
-                        </div>
-                    )}
+                        {/* Delete Menu - only for sender */}
+                        {isSender && (
+                            <div className="relative">
+                                <button
+                                    onClick={() => setShowMenu(!showMenu)}
+                                    className="bg-white rounded-full p-1.5 shadow-lg hover:bg-gray-100"
+                                >
+                                    <MdDelete className="text-red-500" size={16} />
+                                </button>
+
+                                {showMenu && (
+                                    <div className="absolute right-0 mt-2 bg-white rounded-lg shadow-xl border z-10 overflow-hidden">
+                                        <button
+                                            onClick={() => handleDelete('self')}
+                                            className="block w-full px-4 py-2 text-left text-sm hover:bg-gray-50 whitespace-nowrap"
+                                        >
+                                            Delete for me
+                                        </button>
+                                        <button
+                                            onClick={() => handleDelete('both')}
+                                            className="block w-full px-4 py-2 text-left text-sm hover:bg-gray-50 text-red-600 whitespace-nowrap"
+                                        >
+                                            Delete for everyone
+                                        </button>
+                                    </div>
+                                )}
+                            </div>
+                        )}
+                    </div>
                 </div>
             </div>
         </div>

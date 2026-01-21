@@ -6,10 +6,18 @@ import ChatList from '../components/ChatList';
 import ChatWindow from '../components/ChatWindow';
 import api from '../utils/api';
 import { FiMessageCircle } from 'react-icons/fi';
+import useNotificationPreferences from '../hooks/useNotificationPreferences';
+import useNotificationSound from '../hooks/useNotificationSound';
+import useTabFocus from '../hooks/useTabFocus';
 
 export default function Chat() {
     const { user } = useAuth();
     const { socket, connected } = useSocket();
+
+    // Notification sound hooks
+    const notificationPreferences = useNotificationPreferences();
+    const { playNotificationSound } = useNotificationSound(notificationPreferences);
+    const isTabFocused = useTabFocus();
 
     const [chats, setChats] = useState([]);
     const [allUsers, setAllUsers] = useState([]);
@@ -78,6 +86,11 @@ export default function Chat() {
             if (message.chat === selectedChat._id) {
                 setMessages((prev) => [...prev, message]);
 
+                // Play notification sound for messages from other users
+                if (message.sender._id !== user.id) {
+                    playNotificationSound(message.sender._id, user.id);
+                }
+
                 // Mark as delivered
                 socket.emit('message:delivered', {
                     messageId: message._id,
@@ -132,60 +145,42 @@ export default function Chat() {
     useEffect(() => {
         if (!socket) return;
 
-        const handleUserOnline = ({ userId }) => {
-            console.log('👤 User came online:', userId);
+        const handleUserStatus = ({ userId, isOnline, lastSeen }) => {
+            console.log('👤 User status update:', userId, { isOnline, lastSeen });
+
             // Update in allUsers
             setAllUsers((prev) =>
                 prev.map((user) =>
-                    user._id === userId ? { ...user, isOnline: true } : user
+                    user._id === userId ? { ...user, isOnline, lastSeen } : user
                 )
             );
+
             // Update in chats
             setChats((prev) =>
                 prev.map((chat) => ({
                     ...chat,
                     participants: chat.participants.map((p) =>
-                        p._id === userId ? { ...p, isOnline: true } : p
+                        p._id === userId ? { ...p, isOnline, lastSeen } : p
                     ),
                 }))
             );
         };
 
-        const handleUserOffline = ({ userId, lastSeen }) => {
-            console.log('👤 User went offline:', userId, lastSeen);
-            // Update in allUsers
-            setAllUsers((prev) =>
-                prev.map((user) =>
-                    user._id === userId ? { ...user, isOnline: false, lastSeen } : user
-                )
-            );
-            // Update in chats
-            setChats((prev) =>
-                prev.map((chat) => ({
-                    ...chat,
-                    participants: chat.participants.map((p) =>
-                        p._id === userId ? { ...p, isOnline: false, lastSeen } : p
-                    ),
-                }))
-            );
-        };
-
-        socket.on('user:online', handleUserOnline);
-        socket.on('user:offline', handleUserOffline);
+        socket.on('user:status', handleUserStatus);
 
         return () => {
-            socket.off('user:online', handleUserOnline);
-            socket.off('user:offline', handleUserOffline);
+            socket.off('user:status', handleUserStatus);
         };
     }, [socket]);
 
-    const handleSendMessage = ({ content, media }) => {
+    const handleSendMessage = ({ content, media, replyToId }) => {
         if (!socket || !selectedChat) return;
 
         socket.emit('message:send', {
             chatId: selectedChat._id,
             content: content || '',
             media: media || { type: '', url: '' },
+            replyToId: replyToId || null,
         });
     };
 

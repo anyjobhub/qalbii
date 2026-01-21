@@ -1,4 +1,5 @@
 import { formatDistanceToNow } from 'date-fns';
+import { formatExactTime } from '../utils/formatTime';
 import { useState } from 'react';
 import { FiSearch, FiX } from 'react-icons/fi';
 
@@ -163,11 +164,9 @@ export default function ChatList({ chats, allUsers = [], selectedChat, onSelectC
                                                         })}
                                                     </span>
                                                 )}
-                                                {!otherUser.isOnline && isValidDate(otherUser.lastSeen) && (
+                                                {!otherUser.isOnline && otherUser.lastSeen && (
                                                     <span className="text-xs text-gray-400">
-                                                        {formatDistanceToNow(new Date(otherUser.lastSeen), {
-                                                            addSuffix: true,
-                                                        })}
+                                                        {formatExactTime(otherUser.lastSeen)}
                                                     </span>
                                                 )}
                                             </div>
